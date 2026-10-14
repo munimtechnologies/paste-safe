@@ -28,7 +28,7 @@ What goes over the network: the page itself (GitHub Pages), the Transformers.js 
 
 - `core.js`: pure functions with no DOM and no network. They split text into chunks the model can read, line up model tokens with the text, join word pieces into entity spans and widen half-tagged words, run the pattern finders, resolve overlaps (your list, then contact details and numbers, then model names), and mask and restore.
 - `app.js`: loads the model with `pipeline('token-classification', 'Xenova/bert-base-NER')` and wires up the page.
-- `test/core.test.mjs`: unit tests (`node --test test/core.test.mjs`), run in CI on every push.
+- `test/core.test.mjs`: unit tests (`node --test test/core.test.mjs`). `test_node_suite.py` runs them before each commit of code to this repo, and the commit is not made if a test fails. There is no hosted CI yet.
 
 To run it locally, serve the folder with any static server (for example `python -m http.server`) and open `http://localhost:8000`.
 
