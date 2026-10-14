@@ -10,7 +10,7 @@ Freelancers, agencies and consultants paste client emails, briefs and notes into
 2. Copy the masked text into any AI: `[PERSON_1] asked [ORG_1] to move the launch from [PLACE_1]...`
 3. Paste the AI's answer back. Paste-Safe swaps each placeholder for the real name. It also catches the ways chat models bend placeholders: `[person 1]`, `PERSON_1`.
 
-The key (placeholder to real name) lives only in the page. The same name keeps the same placeholder for the whole session, so you can mask several messages in one chat. You can save the key as JSON and load it later.
+The key (placeholder to real name) lives only in the page. The same name keeps the same placeholder for the whole session, so you can mask several messages in one chat. A first or last name used on its own gets the same placeholder as the full name it belongs to ("Daniel's line" after "Daniel Okafor"), so the AI reads one person, not two; if two people in the text share that name, it keeps a placeholder of its own. You can save the key as JSON and load it later.
 
 ## Why it has to be open and local
 
@@ -30,7 +30,7 @@ What goes over the network: the page itself (GitHub Pages), the Transformers.js 
 
 The test page runs the same masking over 30 made-up requests of the kind people paste into a chat AI (`eval-data.js`), with every person, company, place, email, phone number and account number labelled. Some are meant to be hard: lower-case names, names that are also ordinary words ("Rose", "Grant") and names from outside the model's English news training. A name counts as hidden only if every letter of every mention is masked. The page scores three settings (the default; the model with the name rules off; a lower model confidence of 0.4), lists what was missed and which ordinary words were masked by mistake, and writes the results as a Markdown section you can copy. It runs in your browser like the main page, so you can check the numbers yourself.
 
-The messages were written by the AI agents that built Paste-Safe, not taken from real clients. The name rules (0.2.0) were added after the test set was written, by the same agents, so the default score on this set is a best case.
+The messages were written by the AI agents that built Paste-Safe, not taken from real clients. The name rules (0.2.0) were added after the test set was written, by the same agents, so the default score on this set is a best case. The 0.2.1 change only decides which placeholder a name gets, not whether it is masked, so it does not move these scores.
 
 ## How it works
 
@@ -43,6 +43,7 @@ To run it locally, serve the folder with any static server (for example `python 
 
 ## Changes
 
+- 0.2.1: a first or last name used on its own shares the placeholder of the one full name it belongs to, so "Daniel Okafor" and a later "Daniel's" are both `[PERSON_2]` instead of two different people. A name two people share, or one the key already holds on its own, keeps its own placeholder. Found by a browser test of the sample on the live page.
 - 0.2.0: name rules for titles, greetings and sign-offs (a "Names after Mr, Dr, Dear, Hi or above a sign-off" option, on by default); the test page scores the model with and without them and writes a Markdown summary.
 - 0.1.0: first release, then the 30-message test set.
 
