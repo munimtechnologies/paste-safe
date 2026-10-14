@@ -6,7 +6,7 @@ Mask client names before you paste text into a cloud AI, then put them back in t
 
 Freelancers, agencies and consultants paste client emails, briefs and notes into ChatGPT, Claude or Gemini every day, and many have signed NDAs that never imagined that. Paste-Safe sits in between:
 
-1. Paste your text. An open-source name-finding model running **in your browser tab** marks people, organizations and places. Regular expressions mark emails, phone numbers, links, card numbers, IBANs, IP addresses and US SSNs. You can add your own always-mask list, such as client names and code names.
+1. Paste your text. An open-source name-finding model running **in your browser tab** marks people, organizations and places. A few fixed rules catch names the words around them give away (after Mr, Dr or Madame, after Dear or Hi, under "Kind regards,"). Regular expressions mark emails, phone numbers, links, card numbers, IBANs, IP addresses and US SSNs. You can add your own always-mask list, such as client names and code names.
 2. Copy the masked text into any AI: `[PERSON_1] asked [ORG_1] to move the launch from [PLACE_1]...`
 3. Paste the AI's answer back. Paste-Safe swaps each placeholder for the real name. It also catches the ways chat models bend placeholders: `[person 1]`, `PERSON_1`.
 
@@ -20,7 +20,7 @@ What goes over the network: the page itself (GitHub Pages), the Transformers.js 
 
 ## Limits
 
-- The model was trained on English news text (CoNLL-2003). It misses some names, especially unusual ones, names written in lower case and non-English text. Read the masked text before you paste it.
+- The model was trained on English news text (CoNLL-2003). It misses some names, especially unusual ones, names written in lower case and non-English text. The name rules help only where a title, greeting or sign-off gives the name away. Read the masked text before you paste it.
 - It finds names and contact details. It does not hide facts that identify someone indirectly ("the CFO of the only bakery in town").
 - It lowers risk; it does not make text anonymous, and it is not legal advice about your contracts or data-protection duties.
 
@@ -28,16 +28,23 @@ What goes over the network: the page itself (GitHub Pages), the Transformers.js 
 
 **Test set:** https://munimv2.github.io/paste-safe/eval.html
 
-The test page runs the same masking over 30 made-up requests of the kind people paste into a chat AI (`eval-data.js`), with every person, company, place, email, phone number and account number labelled. Some are meant to be hard: lower-case names, names that are also ordinary words ("Rose", "Grant") and names from outside the model's English news training. A name counts as hidden only if every letter of every mention is masked. The page lists what was missed and which ordinary words were masked by mistake, at the default confidence (0.6) and at 0.4. It runs in your browser like the main page, so you can check the numbers yourself. The messages were written by the AI agents that built Paste-Safe, not taken from real clients.
+The test page runs the same masking over 30 made-up requests of the kind people paste into a chat AI (`eval-data.js`), with every person, company, place, email, phone number and account number labelled. Some are meant to be hard: lower-case names, names that are also ordinary words ("Rose", "Grant") and names from outside the model's English news training. A name counts as hidden only if every letter of every mention is masked. The page scores three settings (the default; the model with the name rules off; a lower model confidence of 0.4), lists what was missed and which ordinary words were masked by mistake, and writes the results as a Markdown section you can copy. It runs in your browser like the main page, so you can check the numbers yourself.
+
+The messages were written by the AI agents that built Paste-Safe, not taken from real clients. The name rules (0.2.0) were added after the test set was written, by the same agents, so the default score on this set is a best case.
 
 ## How it works
 
-- `core.js`: pure functions with no DOM and no network. They split text into chunks the model can read, line up model tokens with the text, join word pieces into entity spans and widen half-tagged words, run the pattern finders, resolve overlaps (your list, then contact details and numbers, then model names), and mask and restore.
+- `core.js`: pure functions with no DOM and no network. They split text into chunks the model can read, line up model tokens with the text, join word pieces into entity spans and widen half-tagged words, apply the name rules, run the pattern finders, resolve overlaps (your list, then contact details and numbers, then names), and mask and restore.
 - `app.js`: loads the model with `pipeline('token-classification', 'Xenova/bert-base-NER')` and wires up the page.
-- `eval.html`, `eval.js`, `evalcore.js`, `eval-data.js`: the test set page, its scoring (pure functions) and the labelled messages.
+- `eval.html`, `eval.js`, `evalcore.js`, `eval-data.js`: the test set page, its scoring and write-up (pure functions) and the labelled messages.
 - `test/core.test.mjs`, `test/eval.test.mjs`: unit tests (`npm test`). `test_node_suite.py` runs them before each commit of code to this repo, and the commit is not made if a test fails. There is no hosted CI yet.
 
 To run it locally, serve the folder with any static server (for example `python -m http.server`) and open `http://localhost:8000`.
+
+## Changes
+
+- 0.2.0: name rules for titles, greetings and sign-offs (a "Names after Mr, Dr, Dear, Hi or above a sign-off" option, on by default); the test page scores the model with and without them and writes a Markdown summary.
+- 0.1.0: first release, then the 30-message test set.
 
 ## About
 
