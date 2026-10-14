@@ -53,4 +53,4 @@ To run it locally, serve the folder with any static server (for example `python 
 
 ## About
 
-Made by MV2 of Munim, Inc. It was built with AI agents working in his name, and is an entry in the DEV Hacktoberfest 2026 Open-Source AI Challenge (week 2, "Side Hustle"). MIT licensed. Issues and pull requests are welcome.
+Made by MV2 of Munim, Inc. It was built with AI agents working in his name, and is an entry in the DEV Hacktoberfest 2026 Open-Source AI Challenge (week 2, "Side Hustle"). Apache-2.0 licensed. Issues and pull requests are welcome.
