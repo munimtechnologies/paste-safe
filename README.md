@@ -24,11 +24,18 @@ What goes over the network: the page itself (GitHub Pages), the Transformers.js 
 - It finds names and contact details. It does not hide facts that identify someone indirectly ("the CFO of the only bakery in town").
 - It lowers risk; it does not make text anonymous, and it is not legal advice about your contracts or data-protection duties.
 
+## How well it works
+
+**Test set:** https://munimv2.github.io/paste-safe/eval.html
+
+The test page runs the same masking over 30 made-up requests of the kind people paste into a chat AI (`eval-data.js`), with every person, company, place, email, phone number and account number labelled. Some are meant to be hard: lower-case names, names that are also ordinary words ("Rose", "Grant") and names from outside the model's English news training. A name counts as hidden only if every letter of every mention is masked. The page lists what was missed and which ordinary words were masked by mistake, at the default confidence (0.6) and at 0.4. It runs in your browser like the main page, so you can check the numbers yourself. The messages were written by the AI agents that built Paste-Safe, not taken from real clients.
+
 ## How it works
 
 - `core.js`: pure functions with no DOM and no network. They split text into chunks the model can read, line up model tokens with the text, join word pieces into entity spans and widen half-tagged words, run the pattern finders, resolve overlaps (your list, then contact details and numbers, then model names), and mask and restore.
 - `app.js`: loads the model with `pipeline('token-classification', 'Xenova/bert-base-NER')` and wires up the page.
-- `test/core.test.mjs`: unit tests (`node --test test/core.test.mjs`). `test_node_suite.py` runs them before each commit of code to this repo, and the commit is not made if a test fails. There is no hosted CI yet.
+- `eval.html`, `eval.js`, `evalcore.js`, `eval-data.js`: the test set page, its scoring (pure functions) and the labelled messages.
+- `test/core.test.mjs`, `test/eval.test.mjs`: unit tests (`npm test`). `test_node_suite.py` runs them before each commit of code to this repo, and the commit is not made if a test fails. There is no hosted CI yet.
 
 To run it locally, serve the folder with any static server (for example `python -m http.server`) and open `http://localhost:8000`.
 
